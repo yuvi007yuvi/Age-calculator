@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
-        /* Your custom styles here */
         body {
             background-color: #1a202c;
             color: #cbd5e0;
@@ -16,13 +15,18 @@
             background-color: #2d3748;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
 
         .calculator-title {
             color: #e2e8f0;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
             margin-bottom: 1rem;
+        }
+
+        .instruction-list {
+            color: #a0aec0;
         }
 
         .input-field {
@@ -41,36 +45,55 @@
             background-color: #3182ce;
         }
 
-        .result {
-            margin-top: 1rem;
-            color: #a0aec0;
+        .result-box {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .highlighted-result {
+            color: #68d391;
+            font-weight: 600;
         }
     </style>
     <title>DOB Calculator</title>
 </head>
-<body class="min-h-screen flex items-center justify-center">
-    <div class="calculator-container p-8 rounded-lg">
+<body class="min-h-screen d-flex align-items-center justify-content-center">
+    <div class="calculator-container">
         <h1 class="calculator-title mb-4">DOB Calculator</h1>
-        <p class="text-gray-300 mb-4">Calculate your age by entering your date of birth. Select the year, month, and day, then click the "Calculate Age" button to see the result.</p>
-        
-        <div class="flex mb-4">
-            <div class="mr-2">
-                <label for="year" class="block text-gray-300">Year:</label>
-                <select id="year" class="input-field w-24 px-2 py-1 rounded focus:outline-none focus:border-blue-500"></select>
+        <ul class="instruction-list">
+            <li>Enter your birthdate by selecting the year, month, and day from the dropdowns.</li>
+            <li>Click the "Calculate Age" button to see the result.</li>
+            <li>Your age will be displayed below in a highlighted box.</li>
+        </ul>
+
+        <div class="form-group row mb-4">
+            <label for="year" class="col-sm-2 col-form-label text-gray-300">Year:</label>
+            <div class="col-sm-4">
+                <select id="year" class="form-control input-field"></select>
             </div>
-            <div class="mr-2">
-                <label for="month" class="block text-gray-300">Month:</label>
-                <select id="month" class="input-field w-24 px-2 py-1 rounded focus:outline-none focus:border-blue-500"></select>
-            </div>
-            <div>
-                <label for="day" class="block text-gray-300">Day:</label>
-                <select id="day" class="input-field w-16 px-2 py-1 rounded focus:outline-none focus:border-blue-500"></select>
+            <label for="month" class="col-sm-2 col-form-label text-gray-300">Month:</label>
+            <div class="col-sm-4">
+                <select id="month" class="form-control input-field"></select>
             </div>
         </div>
+        <div class="form-group row mb-4">
+            <label for="day" class="col-sm-2 col-form-label text-gray-300">Day:</label>
+            <div class="col-sm-4">
+                <select id="day" class="form-control input-field"></select>
+            </div>
+        </div>
+        <button onclick="calculateAge()" class="btn btn-primary calculate-button">Calculate Age</button>
 
-        <button onclick="calculateAge()" class="calculate-button w-full px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">Calculate Age</button>
-        <div id="result" class="result mt-4"></div>
-
+        <div id="result" class="result-box mt-4">
+            <p class="mb-0">Your age is: <span id="highlightedResult" class="highlighted-result"></span></p>
+        </div>
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script>
             // Populate dropdowns for years, months, and days
             const currentYear = new Date().getFullYear();
@@ -103,44 +126,42 @@
                 option.textContent = dayValue;
                 dayDropdown.appendChild(option);
             }
+
+            function calculateAge() {
+                // Get current date
+                const currentDate = new Date();
+
+                // Get user's date of birth
+                const year = document.getElementById('year').value;
+                const month = document.getElementById('month').value;
+                const day = document.getElementById('day').value;
+
+                const dob = new Date(`${year}-${month}-${day}`);
+
+                // Calculate age
+                const age = calculateAgeFromDOB(dob, currentDate);
+
+                // Display the result
+                const highlightedResult = document.getElementById('highlightedResult');
+                highlightedResult.textContent = `${age.years} years, ${age.months} months, and ${age.days} days.`;
+            }
+
+            function calculateAgeFromDOB(dob, currentDate) {
+                const dobDate = new Date(dob);
+                let ageInMilliseconds = currentDate - dobDate;
+
+                // Calculate years, months, and days
+                const years = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
+                ageInMilliseconds -= years * 365.25 * 24 * 60 * 60 * 1000;
+
+                const months = Math.floor(ageInMilliseconds / (30.44 * 24 * 60 * 60 * 1000));
+                ageInMilliseconds -= months * 30.44 * 24 * 60 * 60 * 1000;
+
+                const days = Math.floor(ageInMilliseconds / (24 * 60 * 60 * 1000));
+
+                return { years, months, days };
+            }
         </script>
     </div>
-
-    <script>
-        function calculateAge() {
-            // Get current date
-            const currentDate = new Date();
-
-            // Get user's date of birth
-            const year = document.getElementById('year').value;
-            const month = document.getElementById('month').value;
-            const day = document.getElementById('day').value;
-
-            const dob = new Date(`${year}-${month}-${day}`);
-
-            // Calculate age
-            const age = calculateAgeFromDOB(dob, currentDate);
-
-            // Display the result
-            const resultElement = document.getElementById('result');
-            resultElement.innerHTML = `Your age is: ${age.years} years, ${age.months} months, and ${age.days} days.`;
-        }
-
-        function calculateAgeFromDOB(dob, currentDate) {
-            const dobDate = new Date(dob);
-            let ageInMilliseconds = currentDate - dobDate;
-
-            // Calculate years, months, and days
-            const years = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
-            ageInMilliseconds -= years * 365.25 * 24 * 60 * 60 * 1000;
-
-            const months = Math.floor(ageInMilliseconds / (30.44 * 24 * 60 * 60 * 1000));
-            ageInMilliseconds -= months * 30.44 * 24 * 60 * 60 * 1000;
-
-            const days = Math.floor(ageInMilliseconds / (24 * 60 * 60 * 1000));
-
-            return { years, months, days };
-        }
-    </script>
 </body>
 </html>
